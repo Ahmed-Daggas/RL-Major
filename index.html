@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بطولة روكيت ليق المدرسية 2v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #2a2a40;
+    --orange: #ff6b2b;
+    --blue: #2b9fff;
+    --teal: #00d4aa;
+    --gold: #ffd700;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    overflow-x: auto;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 40% at 20% 10%, rgba(255,107,43,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(43,159,255,0.07) 0%, transparent 60%);
+    pointer-events:none; z-index:0;
+  }
+  .wrapper { position:relative; z-index:1; padding:30px 20px; max-width:1600px; margin:0 auto; }
+
+  /* HEADER */
+  header { text-align:center; margin-bottom:36px; }
+  .logo-row { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:8px; }
+  .rocket-icon { font-size:40px; }
+  h1 {
+    font-size:clamp(22px,4vw,48px); font-weight:900;
+    background:linear-gradient(135deg,var(--orange) 0%,var(--gold) 50%,var(--blue) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .subtitle { color:var(--muted); font-size:14px; margin-top:5px; letter-spacing:2px; }
+  .divider { width:100px; height:3px; background:linear-gradient(90deg,transparent,var(--orange),var(--blue),transparent); margin:12px auto 0; border-radius:2px; }
+
+  /* STATS */
+  .stats-bar { display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:36px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 22px; text-align:center; }
+  .stat-num { font-size:24px; font-weight:900; color:var(--orange); }
+  .stat-label { font-size:11px; color:var(--muted); margin-top:2px; }
+
+  /* HINT */
+  .hint-bar {
+    background:rgba(255,107,43,0.07); border:1px solid rgba(255,107,43,0.18);
+    border-radius:10px; padding:9px 16px; font-size:12px; color:var(--muted);
+    margin-bottom:28px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .hint-bar strong { color:var(--orange); }
+
+  /* ROUNDS HEADER */
+  .rounds-header {
+    display:grid; grid-template-columns:repeat(5,1fr);
+    gap:14px; margin-bottom:14px; text-align:center; min-width:900px;
+  }
+  .round-label {
+    font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    color:var(--muted); padding:7px; border-bottom:2px solid var(--border);
+  }
+  .round-label.final { color:var(--gold); border-color:var(--gold); }
+
+  /* BRACKET */
+  .bracket-wrapper { overflow-x:auto; padding-bottom:12px; }
+  .bracket {
+    display:grid; grid-template-columns:repeat(5,1fr);
+    gap:14px; align-items:center; min-width:900px;
+  }
+  .round { display:flex; flex-direction:column; }
+  .round-1 { gap:6px; }
+  .round-2 { gap:18px; justify-content:space-around; }
+  .round-3 { gap:60px; justify-content:space-around; }
+  .round-4 { justify-content:center; }
+  .round-5 { justify-content:center; }
+
+  /* MATCH */
+  .match {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden;
+    transition:transform 0.2s,box-shadow 0.2s;
+  }
+  .match:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.4); }
+  .match.qf     { border-color:rgba(255,107,43,0.18); }
+  .match.sf     { border-color:rgba(43,159,255,0.28); }
+  .match.final-match { border-color:rgba(255,215,0,0.45); box-shadow:0 0 22px rgba(255,215,0,0.09); }
+
+  .match-label {
+    font-size:10px; color:var(--muted);
+    padding:4px 11px; background:rgba(255,255,255,0.03);
+    letter-spacing:1px; border-bottom:1px solid var(--border);
+  }
+
+  /* TEAM */
+  .team { display:flex; align-items:center; gap:7px; padding:9px 11px; position:relative; }
+  .team:not(:last-child) { border-bottom:1px solid var(--border); }
+
+  .team.winner { background:rgba(255,107,43,0.08); }
+  .match.sf .team.winner { background:rgba(43,159,255,0.08); }
+  .match.final-match .team.winner { background:rgba(255,215,0,0.08); }
+
+  .team.winner::before {
+    content:''; position:absolute; right:0; top:0; bottom:0;
+    width:3px; background:var(--orange); border-radius:0 4px 4px 0;
+  }
+  .match.sf .team.winner::before { background:var(--blue); }
+  .match.final-match .team.winner::before { background:var(--gold); }
+
+  .team-emoji { font-size:18px; cursor:pointer; min-width:22px; text-align:center; }
+  .team-name {
+    flex:1; font-size:12px; font-weight:700; color:var(--muted); font-style:italic;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    cursor:text; border-radius:4px; padding:2px 4px;
+  }
+  .team-name.filled { color:var(--text); font-style:normal; }
+  .team.winner .team-name { color:#fff !important; font-style:normal; }
+  .team-name:focus { outline:none; background:rgba(255,255,255,0.05); }
+
+  .team-score {
+    font-size:16px; font-weight:900; color:var(--muted);
+    min-width:20px; text-align:center; cursor:text;
+    border-radius:4px; padding:2px 3px;
+  }
+  .team-score:focus { outline:none; background:rgba(255,255,255,0.05); }
+  .team.winner .team-score { color:var(--orange); }
+  .match.sf .team.winner .team-score { color:var(--blue); }
+  .match.final-match .team.winner .team-score { color:var(--gold); }
+
+  /* CHAMPION */
+  .champion-card {
+    background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,107,43,0.08));
+    border:2px solid var(--gold); border-radius:18px; padding:26px 16px;
+    text-align:center; animation:glow 2.5s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%,100%{box-shadow:0 0 28px rgba(255,215,0,0.15)}
+    50%{box-shadow:0 0 52px rgba(255,215,0,0.35)}
+  }
+  .trophy { font-size:46px; display:block; margin-bottom:7px; animation:bounce 2s ease infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  .champ-label { font-size:10px; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:5px; }
+  .champ-name {
+    font-size:16px; font-weight:900; color:var(--muted); font-style:italic;
+    cursor:text; border-radius:6px; padding:3px 7px; display:inline-block;
+  }
+  .champ-name.filled { color:#fff; font-style:normal; }
+  .champ-name:focus { outline:none; background:rgba(255,255,255,0.05); }
+  .champ-tag {
+    display:inline-block; background:var(--gold); color:#000;
+    font-size:10px; font-weight:900; letter-spacing:2px;
+    padding:3px 10px; border-radius:20px; margin-top:7px;
+  }
+
+  /* TABLE */
+  .schedule-section { margin-top:48px; }
+  .section-title {
+    font-size:19px; font-weight:900; margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+  table { width:100%; border-collapse:collapse; background:var(--card); border-radius:14px; overflow:hidden; border:1px solid var(--border); }
+  th { background:var(--surface); padding:12px 14px; text-align:right; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border); }
+  td { padding:11px 14px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); cursor:text; }
+  td[contenteditable="true"]:focus { outline:none; background:rgba(255,255,255,0.04); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; user-select:none; }
+  .badge-pending { background:rgba(107,107,136,0.2); color:var(--muted); }
+  .badge-done    { background:rgba(0,212,170,0.15);  color:var(--teal); }
+  .badge-live    { background:rgba(255,107,43,0.15); color:var(--orange); animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .vs-text { color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- HEADER -->
+<header>
+  <div class="logo-row">
+    <span class="rocket-icon">🚀</span>
+    <h1 contenteditable="true" spellcheck="false">بطولة روكيت ليق المدرسية</h1>
+    <span class="rocket-icon">⚽</span>
+  </div>
+  <p class="subtitle" contenteditable="true" spellcheck="false">الموسم الأول · ٢٠٢٦</p>
+  <div class="divider"></div>
+</header>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num" contenteditable="true" spellcheck="false">16</div><div class="stat-label">فريق مشارك</div></div>
+  <div class="stat"><div class="stat-num" contenteditable="true" spellcheck="false">15</div><div class="stat-label">إجمالي المباريات</div></div>
+  <div class="stat"><div class="stat-num">2v2</div><div class="stat-label">طريقة اللعب</div></div>
+  <div class="stat"><div class="stat-num">🏆</div><div class="stat-label">دوري الإقصاء</div></div>
+</div>
+
+<!-- HINT -->
+<div class="hint-bar">
+  ✏️ <strong>كيف تعدّل؟</strong>
+  اضغط على أي نص لتعديله مباشرة ·
+  أضف <strong>class="winner"</strong> للفريق الفائز في الكود ·
+  اضغط على الشارة لتغيير الحالة (قادمة / مباشر / انتهت)
+</div>
+
+<!-- BRACKET -->
+<div class="bracket-wrapper">
+  <div class="rounds-header">
+    <div class="round-label">دور الـ١٦</div>
+    <div class="round-label">ربع النهائي</div>
+    <div class="round-label">نصف النهائي</div>
+    <div class="round-label">النهائي</div>
+    <div class="round-label final">🏆 البطل</div>
+  </div>
+
+  <div class="bracket">
+
+    <!-- ══ دور الـ١٦ (8 مباريات) ══ -->
+    <div class="round round-1">
+
+      <div class="match">
+        <div class="match-label">م١</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٢</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match">
+        <div class="match-label">م٢</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٣</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٤</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match">
+        <div class="match-label">م٣</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٥</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٦</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match">
+        <div class="match-label">م٤</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٧</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٨</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match">
+        <div class="match-label">م٥</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ٩</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١٠</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match">
+        <div class="match-label">م٦</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١١</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١٢</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match">
+        <div class="match-label">م٧</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١٣</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١٤</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match">
+        <div class="match-label">م٨</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١٥</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">الفريق ١٦</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+    </div><!-- /round-1 -->
+
+    <!-- ══ ربع النهائي (4 مباريات) ══ -->
+    <div class="round round-2">
+
+      <div class="match qf">
+        <div class="match-label">ربع نهائي ١</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م١</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م٢</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match qf">
+        <div class="match-label">ربع نهائي ٢</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م٣</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م٤</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match qf">
+        <div class="match-label">ربع نهائي ٣</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م٥</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م٦</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match qf">
+        <div class="match-label">ربع نهائي ٤</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م٧</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز م٨</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+    </div><!-- /round-2 -->
+
+    <!-- ══ نصف النهائي (2 مباريات) ══ -->
+    <div class="round round-3">
+
+      <div class="match sf">
+        <div class="match-label">نصف نهائي ١</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز ر١</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز ر٢</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+      <div class="match sf">
+        <div class="match-label">نصف نهائي ٢</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز ر٣</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز ر٤</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+
+    </div><!-- /round-3 -->
+
+    <!-- ══ النهائي ══ -->
+    <div class="round round-4">
+      <div class="match final-match">
+        <div class="match-label">🏆 النهائي الكبير</div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز ن١</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+        <div class="team"><span class="team-emoji">🎮</span><span class="team-name" contenteditable="true" spellcheck="false">فائز ن٢</span><span class="team-score" contenteditable="true" spellcheck="false">-</span></div>
+      </div>
+    </div>
+
+    <!-- ══ البطل ══ -->
+    <div class="round round-5">
+      <div class="champion-card">
+        <span class="trophy">🏆</span>
+        <div class="champ-label">البطل الأول</div>
+        <div class="champ-name" contenteditable="true" spellcheck="false">؟؟؟</div>
+        <br>
+        <span class="champ-tag">CHAMPIONS</span>
+      </div>
+    </div>
+
+  </div><!-- /bracket -->
+</div><!-- /bracket-wrapper -->
+
+<!-- SCHEDULE TABLE -->
+<div class="schedule-section">
+  <div class="section-title">📅 جدول المباريات</div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>الفريق الأول</th>
+        <th></th>
+        <th>الفريق الثاني</th>
+        <th>النتيجة</th>
+        <th>الدور</th>
+        <th>الحالة</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+</div><!-- /wrapper -->
+
+<script>
+// توليد صفوف الجدول تلقائياً
+const rows = [
+  ['١','الفريق ١','الفريق ٢','دور الـ١٦'],
+  ['٢','الفريق ٣','الفريق ٤','دور الـ١٦'],
+  ['٣','الفريق ٥','الفريق ٦','دور الـ١٦'],
+  ['٤','الفريق ٧','الفريق ٨','دور الـ١٦'],
+  ['٥','الفريق ٩','الفريق ١٠','دور الـ١٦'],
+  ['٦','الفريق ١١','الفريق ١٢','دور الـ١٦'],
+  ['٧','الفريق ١٣','الفريق ١٤','دور الـ١٦'],
+  ['٨','الفريق ١٥','الفريق ١٦','دور الـ١٦'],
+  ['٩','فائز م١','فائز م٢','ربع النهائي'],
+  ['١٠','فائز م٣','فائز م٤','ربع النهائي'],
+  ['١١','فائز م٥','فائز م٦','ربع النهائي'],
+  ['١٢','فائز م٧','فائز م٨','ربع النهائي'],
+  ['١٣','فائز ر١','فائز ر٢','نصف النهائي'],
+  ['١٤','فائز ر٣','فائز ر٤','نصف النهائي'],
+  ['١٥','فائز ن١','فائز ن٢','النهائي 🏆'],
+];
+
+const tbody = document.getElementById('tbody');
+rows.forEach(([num,t1,t2,round]) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${num}</td>
+    <td contenteditable="true" spellcheck="false">${t1}</td>
+    <td><span class="vs-text">ضد</span></td>
+    <td contenteditable="true" spellcheck="false">${t2}</td>
+    <td contenteditable="true" spellcheck="false">- : -</td>
+    <td>${round}</td>
+    <td><span class="badge badge-pending" onclick="cycleBadge(this)">قادمة</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+function cycleBadge(el) {
+  const states = [
+    { cls:'badge-pending', text:'قادمة' },
+    { cls:'badge-live',    text:'🔴 مباشر' },
+    { cls:'badge-done',    text:'انتهت' },
+  ];
+  const cur = states.findIndex(s => el.classList.contains(s.cls));
+  const next = states[(cur+1) % states.length];
+  states.forEach(s => el.classList.remove(s.cls));
+  el.classList.add(next.cls);
+  el.textContent = next.text;
+}
+
+document.querySelectorAll('.team-name, .champ-name').forEach(el => {
+  el.addEventListener('input', () => {
+    const defaults = ['الفريق ١','الفريق ٢','الفريق ٣','الفريق ٤','الفريق ٥','الفريق ٦','الفريق ٧','الفريق ٨',
+      'الفريق ٩','الفريق ١٠','الفريق ١١','الفريق ١٢','الفريق ١٣','الفريق ١٤','الفريق ١٥','الفريق ١٦',
+      'فائز م١','فائز م٢','فائز م٣','فائز م٤','فائز م٥','فائز م٦','فائز م٧','فائز م٨',
+      'فائز ر١','فائز ر٢','فائز ر٣','فائز ر٤','فائز ن١','فائز ن٢','؟؟؟'];
+    el.classList.toggle('filled', !defaults.includes(el.textContent.trim()) && el.textContent.trim() !== '');
+  });
+});
+</script>
+</body>
+</html>
